@@ -1,5 +1,5 @@
 {
-  "name": "backend-template",
+  "name": "weather-backend-server",
   "version": "1.0.0",
   "description": "How to build a simple backend src/server",
   "main": "src/server.js",
