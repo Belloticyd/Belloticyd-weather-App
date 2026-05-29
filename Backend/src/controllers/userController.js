@@ -28,24 +28,29 @@ export const register =  async (req, res) => {
             });
         }
 
-        // Create new user
+        // Password hashing using bcryptjs
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(password, salt)
+        // End of password hashing
+
+
+        // Create a new user instance with the provided data and hashed password
         const user = new User({
             name,
             email,
-            password
+            password: hashedPassword
         })
 
+        // Save the new user to the database
         await user.save()
 
-        // Generate token
-        const token = generateToken(user._id)
+ 
 
         // Respond with a success message and the created user data (excluding the password)
         res.status(httpStatus.OK).json({
             status: STATUS.SUCCESS,
             message: 'New user registered successfully',
             data: {
-                token,
                 user: {
                     id: user._id,
                     name: user.name,
@@ -70,7 +75,7 @@ export const register =  async (req, res) => {
 
 
 // START OF LOGIN FUNCTION
-export const login = async () => {
+export const login = async (req, res) => {
 
     // Start of try catch block for error handling
     try {
@@ -85,21 +90,28 @@ export const login = async () => {
                 message: 'Invalid email or password' 
             })
         }
+        // End of user existence check
+
 
         // Check password
         // Compare the provided password with the stored hashed password
-        const isPasswordValid = await user.comparePassword(password)
+        const isPasswordMatch = await bcrypt.compare(password, user.password)
 
         // If the password is invalid, respond with an error message
-        if (!isPasswordValid) {
+        if (!isPasswordMatch) {
             return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
                 status: STATUS.FAILED, 
-                message: 'Invalid email or password' 
+                message: 'Invalid  Password' 
             })
         }
+        // End of user password check
 
         // If the password is valid, generate a JWT token for authentication
-        const token = generateToken(user._id)
+        const token = jwt.sign(
+            {userId: user._id || user.id || user.userId,},
+            process.env.JWT_SECRET, // Secret key for signing the token from .ENV files
+            { expiresIn: '7d' } // Token expiration time (e.g., 7 day)
+        )
 
         // Respond with a success message and the generated token
         res.status(httpStatus.OK).json({

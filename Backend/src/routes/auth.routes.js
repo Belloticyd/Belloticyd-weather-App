@@ -8,12 +8,12 @@ import { register, login } from "../controllers/userController";
 // Below code is the Instance of a Router
 const router = express.Router();
 
-// Helper function to create JWT token
-const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: '7d'
-  })
-}
+// // Helper function to create JWT token
+// const generateToken = (userId) => {
+//   return jwt.sign({ userId }, process.env.JWT_SECRET, {
+//     expiresIn: '7d'
+//   })
+// }
 
 const STATUS = {
     SUCCESS: 'success',
