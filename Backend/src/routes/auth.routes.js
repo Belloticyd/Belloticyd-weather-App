@@ -5,6 +5,8 @@ import express from 'express'
 
 import { register, login } from "../controllers/userController";
 
+import authMiddleware from '../middleware/auth';
+
 // Below code is the Instance of a Router
 const router = express.Router();
 
@@ -30,16 +32,20 @@ router.post('/login', login)
 // END OF LOGIN FUNCTION
 
 // GET USER PROFILE (protected - we'll add middleware later)
-router.get('/profile', async (req, res) => {
+router.get('/profile', authMiddleware, async (req, res) => {
   try {
+
+    const user = await User.findById(req.userId).select('-password')
     // We'll add authentication middleware here
     res.json({ message: 'This is a protected route', 
-        user: req.user 
+      user: req.user 
     })
   } catch (error) {
     res.status(500).json({ message: 'Server error' })
   }
 })
+
+
 
 
 

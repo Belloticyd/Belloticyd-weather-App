@@ -8,6 +8,8 @@ import dotenv from "dotenv"
 
 
 import authRoute from "./routes/auth.routes"
+import favoriteRoutes from "./routes/favoritesRoutes"
+import searchHistoryRouter from "./routes/searchHistory"
 
 
 // below code is used to Load environment variables
@@ -66,6 +68,8 @@ app.get("/test", (req, res) =>{
 // Below code is used to Import all the routes (we'll create these)
 // const authRoutes = require('./routes/auth.routes')
 app.use('/api/auth', authRoute)
+app.use("/api/favorites", favoriteRoutes)
+app.use('/api/history', searchHistoryRouter)
 
 
 
