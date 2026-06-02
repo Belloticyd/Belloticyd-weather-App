@@ -45,7 +45,7 @@ function App() {
 
         {/* User Menu - FIXED POSITION */}
         {/* User Menu */}
-        <div className="fixed top-4 right-16 z-50">
+        <div className="">
           {isAuthenticated && user ? (
             <div className="flex items-center gap-3">
               <span className="text-gray-700 dark:text-gray-300">

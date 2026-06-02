@@ -31,20 +31,40 @@ router.post('/register', register)
 router.post('/login', login)
 // END OF LOGIN FUNCTION
 
-// GET USER PROFILE (protected - we'll add middleware later)
+// GET USER PROFILE (Protected route)
 router.get('/profile', authMiddleware, async (req, res) => {
   try {
-
+    // req.userId comes from authMiddleware
     const user = await User.findById(req.userId).select('-password')
-    // We'll add authentication middleware here
-    res.json({ message: 'This is a protected route', 
-      user: req.user 
+    
+    if (!user) {
+      return res.status(404).json({ 
+        status: 'error',
+        message: 'User not found' 
+      })
+    }
+    
+    // Send response in the format your frontend expects
+    res.json({
+      status: 'success',
+      data: {
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          favorites: user.favorites,
+          createdAt: user.createdAt
+        }
+      }
     })
   } catch (error) {
-    res.status(500).json({ message: 'Server error' })
+    console.error('Profile error:', error)
+    res.status(500).json({ 
+      status: 'error',
+      message: 'Server error' 
+    })
   }
 })
-
 
 
 

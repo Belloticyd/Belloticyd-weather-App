@@ -19,38 +19,45 @@ export const register =  async (req, res) => {
     try {
         const { name, email, password } = req.body
 
+        console.log('📝 Registration attempt for:', email)
+
         // Check if user already exists
         const existingUser = await User.findOne({ email })
         if (existingUser) {
-            return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-                status: STATUS.FAILED, 
-                message: 'User already exists' 
+            return res.status(400).json({
+                status: STATUS.FAILED,
+                message: 'User already exists'
             });
         }
 
         // Password hashing using bcryptjs
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
-        // End of password hashing
 
-
-        // Create a new user instance with the provided data and hashed password
+        // ✅ STEP 1: Create a new user instance FIRST
         const user = new User({
             name,
             email,
             password: hashedPassword
         })
 
-        // Save the new user to the database
+        // ✅ STEP 2: Save the new user to the database
         await user.save()
+        console.log('✅ User created with ID:', user._id)
 
- 
+        // ✅ STEP 3: NOW generate JWT token (user exists!)
+        const token = jwt.sign(
+            { userId: user._id },  // ← Now user._id exists!
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        )
 
-        // Respond with a success message and the created user data (excluding the password)
-        res.status(httpStatus.OK).json({
+        // ✅ STEP 4: Respond with success
+        res.status(201).json({
             status: STATUS.SUCCESS,
             message: 'New user registered successfully',
             data: {
+                token: token,
                 user: {
                     id: user._id,
                     name: user.name,
@@ -61,8 +68,8 @@ export const register =  async (req, res) => {
         })
 
     } catch (error) {
-        
-        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+        console.error('❌ Registration error:', error)
+        res.status(500).json({
             status: STATUS.ERROR,
             message: 'An error occurred while registering new user',
             error: error.message
