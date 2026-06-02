@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 
-import  { useAuthContext }  from './contest/AuthContext'
+import  { useAuth }  from './context/AuthContext'
 import { useCurrentWeather, useForecast } from './hooks/useWeather'
 import SearchBar from './components/SearchBar'
 import WeatherCard from './components/WeatherCard'
@@ -12,7 +12,7 @@ import DarkModeToggle from './components/DarkModeToggle'
 import AuthModal from './components/AuthModal'
 
 function App() {
-  const { user, logout, isAuthenticated } = useAuthContext()
+  const { user, logout, isAuthenticated } = useAuth()
   const [city, setCity] = useState('')
   const [showAuthModal, setShowAuthModal] = useState(false)
   
@@ -38,30 +38,38 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
-      <DarkModeToggle />
+      <div className="flex flex-col justify-between md:flex-row lg:flex-row items-center p-4">
+        <DarkModeToggle />
       
-      {/* User Menu */}
-      <div className="fixed top-4 right-16 z-50">
-        {isAuthenticated ? (
-          <div className="flex items-center gap-3">
-            <span className="text-gray-700 dark:text-gray-300">
-              👤 {user?.name}
-            </span>
+        {/* // In App.jsx, replace the user menu section (around line 30-50) with: */}
+
+        {/* User Menu - FIXED POSITION */}
+        {/* User Menu */}
+        <div className="fixed top-4 right-16 z-50">
+          {isAuthenticated && user ? (
+            <div className="flex items-center gap-3">
+              <span className="text-gray-700 dark:text-gray-300">
+                👤 {user.name}
+              </span>
+              <button
+                onClick={() => {
+                  logout()
+                  setCity('') // Clear searched city on logout
+                }}
+                className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
             <button
-              onClick={logout}
-              className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
+              onClick={() => setShowAuthModal(true)}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
             >
-              Logout
+              Login / Register
             </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setShowAuthModal(true)}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-          >
-            Login / Register
-          </button>
-        )}
+          )}
+        </div>
       </div>
       
       <div className="container mx-auto px-4 py-8 max-w-4xl">
