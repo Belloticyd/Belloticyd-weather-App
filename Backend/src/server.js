@@ -4,7 +4,7 @@
 import dotenv from "dotenv";
 
 // below code is used to Load environment variables
-dotenv.config()
+dotenv.config()   
 
 // Below code is used to import the app.js files
 import app from "./app";
