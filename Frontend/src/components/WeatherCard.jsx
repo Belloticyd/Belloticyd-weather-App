@@ -3,6 +3,8 @@
 
 import React from 'react'
 
+import FavoriteButton from './FavoriteButton'
+
 const WeatherCard = ({ weatherData }) => {
 
     // If no data yet, show loading placeholder
@@ -45,6 +47,13 @@ const WeatherCard = ({ weatherData }) => {
                         day: 'numeric' 
                         })}
                     </p>
+                </div>
+                <div className="flex justify-between items-start mb-6">
+                    <div className="flex items-center gap-2">
+                        <h2 className="text-3xl font-bold">{weatherData.name}</h2>
+                        <FavoriteButton city={weatherData.name} />
+                    </div>
+                    {/* rest of the header */}
                 </div>
                 <div className="text-right">
                     <div className="flex items-center gap-2">

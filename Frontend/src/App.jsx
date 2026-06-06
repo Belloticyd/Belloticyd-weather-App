@@ -3,20 +3,22 @@
 import { useState } from 'react'
 
 
-import  { useAuth }  from './context/AuthContext'
+import { useAuth } from './context/AuthContext'
 import { useCurrentWeather, useForecast } from './hooks/useWeather'
 import SearchBar from './components/SearchBar'
 import WeatherCard from './components/WeatherCard'
 import ForecastCard from './components/ForecastCard'
 import DarkModeToggle from './components/DarkModeToggle'
 import AuthModal from './components/AuthModal'
+import FavoritesSidebar from './components/FavoritesSidebar'
 
 function App() {
   const { user, logout, isAuthenticated } = useAuth()
   const [city, setCity] = useState('')
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [showSidebar, setShowSidebar] = useState(false)
   
-  const { 
+ const { 
     data: weatherData,
     isLoading: weatherLoading,
     error: weatherError,
@@ -33,19 +35,39 @@ function App() {
     setCity(searchCity)
   }
 
+  const handleSelectFavorite = (favoriteCity) => {
+    setCity(favoriteCity)
+  }
+
   const isLoading = weatherLoading || forecastLoading
   const error = weatherError || forecastError
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
-      <div className="flex flex-col justify-between md:flex-row lg:flex-row items-center p-4">
-        <DarkModeToggle />
+      {/* Sidebar Toggle Button */}
+      {isAuthenticated && (
+        <button
+          onClick={() => setShowSidebar(!showSidebar)}
+          className="fixed top-4 left-4 z-50 cursor-pointer p-2 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          aria-label="Toggle favorites"
+        >
+          ⭐
+        </button>
+      )}
       
-        {/* // In App.jsx, replace the user menu section (around line 30-50) with: */}
-
-        {/* User Menu - FIXED POSITION */}
+      {/* Favorites Sidebar */}
+      <FavoritesSidebar 
+        isOpen={showSidebar}
+        onClose={() => setShowSidebar(false)}
+        onSelectCity={handleSelectFavorite}
+      />
+      
+      {/* Top Bar with Dark Mode and User Menu */}
+      <div className="flex justify-between items-center p-4 ml-12">
+        <DarkModeToggle />
+        
         {/* User Menu */}
-        <div className="">
+        <div>
           {isAuthenticated && user ? (
             <div className="flex items-center gap-3">
               <span className="text-gray-700 dark:text-gray-300">
@@ -54,7 +76,7 @@ function App() {
               <button
                 onClick={() => {
                   logout()
-                  setCity('') // Clear searched city on logout
+                  setCity('')
                 }}
                 className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
               >
