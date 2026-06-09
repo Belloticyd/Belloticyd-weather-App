@@ -1,6 +1,7 @@
 
 
 
+
 // Below code is used to import the necessary modules and libraries for the user controller. It includes the User model
 //  for interacting with the users collection in the database, bcryptjs for hashing passwords, jsonwebtoken for creating
 //  and verifying JWT tokens, and http-status-codes for standardized HTTP status codes.
@@ -28,7 +29,12 @@ export const authMiddleware = async (req, res, next) => {
     try {
         // Get token from Authorization header
         const authHeader = req.headers.authorization
+
+        console.log('🔐 Auth header:', authHeader ? 'Present' : 'Missing')
+
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            console.log('🔐 Invalid or missing token')
+
             return res.status(httpStatus.UNAUTHORIZED).json({ 
                 status: STATUS.FAILED,
                 message: 'Unauthorized User: Invalid or missing token'
@@ -38,6 +44,7 @@ export const authMiddleware = async (req, res, next) => {
         // Extract token (remove "Bearer " prefix)
         const token = authHeader.split(' ')[1]
 
+        console.log('🔐 Token:', token ? 'Present' : 'Missing')
         // Verify token
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         
@@ -46,6 +53,9 @@ export const authMiddleware = async (req, res, next) => {
         
         next()
     } catch (error) {
+
+        console.error('🔐 Auth error:', error)
+        
         if (error.name === 'JsonWebTokenError') {
             return res.status(httpStatus.GATEWAY_TIMEOUT).json({ 
                 status: STATUS.FAILED,

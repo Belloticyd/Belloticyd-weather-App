@@ -10,6 +10,13 @@ import {
   removeFavoriteCity,
 } from "../controllers/userFavourite.js"
 
+import { 
+    getFavorites,
+    addFavorite,
+    removeFavorite
+
+ } from '../controllers/favoritesController.js'
+
 import authMiddleware from '../middleware/auth';
 
 // Below code is the Instance of a Router
@@ -20,6 +27,11 @@ const favoriteRouter = express.Router();
 favoriteRouter.post('/favorites', authMiddleware, addFavoriteCity);
 favoriteRouter.get("/favorites", authMiddleware, getFavoriteCity)
 favoriteRouter.delete('/favorites/:city', authMiddleware, removeFavoriteCity);
+
+// Routes
+favoriteRouter.get('/', getFavorites)           // Get all favorites
+favoriteRouter.post('/', addFavorite)           // Add a favorite
+favoriteRouter.delete('/:city', removeFavorite) // Remove a favorite
 
 
 export default favoriteRouter

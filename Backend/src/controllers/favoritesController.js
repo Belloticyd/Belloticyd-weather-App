@@ -13,6 +13,9 @@ const STATUS = {
 // Get user's favorite cities
 export const getFavorites = async (req, res) => {
     try {
+
+        console.log('📝 Getting favorites for user:', req.userId)
+
         const user = await User.findById(req.userId)
         
         res.json({
@@ -32,8 +35,11 @@ export const getFavorites = async (req, res) => {
 
 // Add city to favorites
 export const addFavorite = async (req, res) => {
+
     try {
         const { city } = req.body
+
+        console.log('📝 Adding favorite:', city, 'for user:', req.userId)
         
         if (!city) {
             return res.status(httpStatus.BAD_REQUEST).json({
@@ -55,6 +61,8 @@ export const addFavorite = async (req, res) => {
         // Add to favorites
         user.favorites.push(city)
         await user.save()
+
+        console.log('✅ Favorite added:', city)
         
         res.json({
             status: STATUS.SUCCESS,
@@ -76,6 +84,9 @@ export const addFavorite = async (req, res) => {
 export const removeFavorite = async (req, res) => {
     try {
         const { city } = req.params
+
+        console.log('📝 Removing favorite:', city, 'for user:', req.userId)
+        console.log('📝 User ID:', req.userId)
         
         const user = await User.findById(req.userId)
         

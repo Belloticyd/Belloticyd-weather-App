@@ -34,25 +34,33 @@ router.post('/login', login)
 // GET USER PROFILE (Protected route)
 router.get('/profile', authMiddleware, async (req, res) => {
   try {
+
+    // req.userId comes from authMiddleware
+    console.log('📝 Getting profile for user ID:', req.userId)
+
+
     // req.userId comes from authMiddleware
     const user = await User.findById(req.userId).select('-password')
     
     if (!user) {
+      console.log('❌ User not found for ID:', req.userId)
       return res.status(404).json({ 
-        status: 'error',
+        status: STATUS.FAILED,
         message: 'User not found' 
       })
     }
+
+    console.log('✅ Profile found for:', user.email)
     
     // Send response in the format your frontend expects
     res.json({
-      status: 'success',
+      status: STATUS.SUCCESS,
       data: {
         user: {
           id: user._id,
           name: user.name,
           email: user.email,
-          favorites: user.favorites,
+          favorites: user.favorites  || [],
           createdAt: user.createdAt
         }
       }
@@ -60,7 +68,7 @@ router.get('/profile', authMiddleware, async (req, res) => {
   } catch (error) {
     console.error('Profile error:', error)
     res.status(500).json({ 
-      status: 'error',
+      status: STATUS.FAILED,
       message: 'Server error' 
     })
   }
