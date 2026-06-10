@@ -1,79 +1,105 @@
 
 
 
-
 import { useState, useEffect } from 'react'
-import { addFavorite, removeFavorite, getFavorites } from '../service/favoritesService'
+import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
+
+const API_URL = 'http://localhost:8000/api'
 
 function FavoriteButton({ city, onFavoriteChange }) {
     const [isFavorite, setIsFavorite] = useState(false)
     const [loading, setLoading] = useState(false)
-    const { isAuthenticated } = useAuth()
-
-    // Check if city is in favorites
-    useEffect(() => {
-        if (isAuthenticated && city) {
-            checkIfFavorite()
-        }
-    }, [isAuthenticated, city])
+    const { isAuthenticated, token } = useAuth()
 
     const checkIfFavorite = async () => {
+        if (!city || !isAuthenticated) return
+        
         try {
             console.log('🔍 Checking if favorite:', city)
-            const favorites = await getFavorites()
-            const isFav = favorites.includes(city)
-            console.log('📋 Is favorite:', isFav)
-            setIsFavorite(isFav)
+            const response = await axios.get(`${API_URL}/favorites`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            const favorites = response.data.data?.favorites || []
+            setIsFavorite(favorites.includes(city))
         } catch (error) {
             console.error('Check favorite error:', error)
             setIsFavorite(false)
         }
     }
 
-    const handleToggleFavorite = async () => {
+    const handleAddFavorite = async () => {
+        console.log('⭐ ADD FAVORITE CLICKED!')
+        console.log('City:', city)
+        console.log('Token exists:', !!token)
+        
         if (!isAuthenticated) {
             alert('Please login to save favorites')
             return
         }
-
+        
         setLoading(true)
         try {
-            if (isFavorite) {
-                console.log('🗑️ Removing favorite:', city)
-                await removeFavorite(city)
-                setIsFavorite(false)
-            } else {
-                console.log('⭐ Adding favorite:', city)
-                await addFavorite(city)
-                setIsFavorite(true)
-            }
-            if (onFavoriteChange) onFavoriteChange()
-            // Refresh the favorites list in sidebar
+            const response = await axios.post(`${API_URL}/favorites`, { city }, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            console.log('Add response:', response.data)
+            setIsFavorite(true)
             window.dispatchEvent(new Event('favoritesUpdated'))
+            if (onFavoriteChange) onFavoriteChange()
         } catch (error) {
-            console.error('Toggle favorite error:', error)
-            alert(error.response?.data?.message || 'Failed to update favorites')
+            console.error('Add error:', error)
+            alert(error.response?.data?.message || 'Failed to add favorite')
         } finally {
             setLoading(false)
         }
     }
 
-    // Don't render button if not authenticated
-    if (!isAuthenticated) {
-        return null
+    const handleRemoveFavorite = async () => {
+        console.log('🗑️ REMOVE FAVORITE CLICKED!')
+        console.log('City:', city)
+        console.log('Token exists:', !!token)
+
+        setLoading(true)
+        try {
+            await axios.delete(`${API_URL}/favorites/${encodeURIComponent(city)}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            setIsFavorite(false)
+            window.dispatchEvent(new Event('favoritesUpdated'))
+            if (onFavoriteChange) onFavoriteChange()
+        } catch (error) {
+            console.error('Remove error:', error)
+            alert(error.response?.data?.message || 'Failed to remove favorite')
+        } finally {
+            setLoading(false)
+        }
     }
+
+    useEffect(() => {
+        if (isAuthenticated && token && city) {
+            checkIfFavorite()
+        }
+    }, [isAuthenticated, token, city])
+
+    if (!isAuthenticated) return null
 
     return (
         <button
-            onClick={handleToggleFavorite}
+            onClick={isFavorite ? handleRemoveFavorite : handleAddFavorite}
             disabled={loading}
-            className={`p-2 rounded-full transition-colors ${
-                isFavorite 
-                    ? 'text-yellow-500 hover:text-yellow-600' 
-                    : 'text-gray-400 hover:text-yellow-500'
-            }`}
-            aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '28px',
+                cursor: 'pointer',
+                padding: '8px',
+                marginLeft: '10px',
+                color: isFavorite ? '#fbbf24' : '#9ca3af',
+                zIndex: 9999,
+                position: 'relative'
+            }}
+            onMouseEnter={() => console.log('Mouse entered button')}
             title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
         >
             {loading ? '⏳' : (isFavorite ? '⭐' : '☆')}

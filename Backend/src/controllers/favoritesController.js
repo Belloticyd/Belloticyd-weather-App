@@ -55,12 +55,16 @@ export const getFavorites = async (req, res) => {
     }
 }
 
+
 // Add city to favorites
 export const addFavorite = async (req, res) => {
     try {
         const { city } = req.body
         
         console.log('📝 Adding favorite:', city, 'for user:', req.userId)
+        console.log('📝 ===== ADD FAVORITE STARTED =====')
+        console.log('City to add:', city)
+        console.log('User ID:', req.userId)
         
         if (!city) {
             return res.status(400).json({
@@ -84,6 +88,9 @@ export const addFavorite = async (req, res) => {
                 message: 'User not found'
             })
         }
+
+        console.log('✅ Found user:', user.email)
+        console.log('Current favorites:', user.favorites)
         
         // Initialize favorites array if it doesn't exist
         if (!user.favorites) {

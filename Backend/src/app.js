@@ -76,6 +76,7 @@ app.get("/api/test", (req, res) => {
 app.use('/api/auth', authRoute)
 app.use('/api/auth', authRoute)
 app.use("/api/favorites", favoriteRoutes)
+app.use("/api/favorite", favoriteRoutes)
 app.use('/api/history', searchHistoryRouter)
 
 

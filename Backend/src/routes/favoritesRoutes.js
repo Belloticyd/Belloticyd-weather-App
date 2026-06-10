@@ -21,6 +21,8 @@ import authMiddleware from '../middleware/auth';
 
 // Below code is the Instance of a Router
 const favoriteRouter = express.Router();
+// All routes require authentication
+favoriteRouter.use(authMiddleware)
 
 
 // Favorite Routes

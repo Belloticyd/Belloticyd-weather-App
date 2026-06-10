@@ -111,6 +111,7 @@ const WeatherCard = ({ weatherData }) => {
                 </p>
                 </div>
             </div>
+            
         </div>
     )
 }

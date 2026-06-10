@@ -1,6 +1,6 @@
 
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 
 import { useAuth } from './context/AuthContext'
@@ -61,11 +61,11 @@ function App() {
       {/* Sidebar Toggle Button */}
       {isAuthenticated && (
         <button
-          onClick={() => setShowSidebar(!showSidebar)}
-          className="fixed top-4 left-4 z-50 cursor-pointer p-2 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-          aria-label="Toggle favorites"
+            onClick={() => setShowSidebar(!showSidebar)}
+            className="fixed top-4 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            style={{ position: 'fixed', top: '16px', left: '16px', zIndex: 9999 }}
         >
-          ⭐
+            ⭐
         </button>
       )}
       {/* Favorites Sidebar  */}
@@ -128,6 +128,38 @@ function App() {
 
         {/* Search Bar */}
         <SearchBar onSearch={handleSearch} isLoading={isLoading} />
+
+        {isAuthenticated && (
+            <div className="mt-4 flex gap-2">
+                <input
+                    type="text"
+                    id="quickFavoriteCity"
+                    placeholder="City to add to favorites"
+                    className="px-3 py-2 border rounded"
+                />
+                <button
+                    onClick={async () => {
+                        const city = document.getElementById('quickFavoriteCity').value
+                        if (!city) return
+                        const token = localStorage.getItem('token')
+                        const response = await fetch('http://localhost:8000/api/favorites', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ city })
+                        })
+                        const data = await response.json()
+                        console.log('Add result:', data)
+                        alert(`${city} added to favorites!`)
+                    }}
+                    className="px-4 py-2 bg-green-500 text-white rounded"
+                >
+                    Add to Favorites (Test)
+                </button>
+            </div>
+        )}
 
         {/* Error Display */}
         {error && (
