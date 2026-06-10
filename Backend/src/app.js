@@ -74,6 +74,7 @@ app.get("/api/test", (req, res) => {
 // Below code is used to Import all the routes (we'll create these)
 // const authRoutes = require('./routes/auth.routes')
 app.use('/api/auth', authRoute)
+app.use('/api/auth', authRoute)
 app.use("/api/favorites", favoriteRoutes)
 app.use('/api/history', searchHistoryRouter)
 

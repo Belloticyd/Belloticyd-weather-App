@@ -1,29 +1,29 @@
-
-
-
 import { useState, useEffect } from 'react'
-import { getFavorites, removeFavorite } from '../service/favoritesService'
+import { getFavorites, removeFavorite } from '../services/favoritesService'
 import { useAuth } from '../context/AuthContext'
 
 function FavoritesSidebar({ onSelectCity, isOpen, onClose }) {
     const [favorites, setFavorites] = useState([])
     const [loading, setLoading] = useState(true)
-    const { isAuthenticated } = useAuth()
+    const { isAuthenticated, token } = useAuth()
 
-    // Load favorites when sidebar opens or auth changes
+    // Load favorites when component mounts or auth changes
     useEffect(() => {
-        if (isAuthenticated && isOpen) {
+        if (isAuthenticated && token) {
             loadFavorites()
         }
-    }, [isAuthenticated, isOpen])
+    }, [isAuthenticated, token])
 
     const loadFavorites = async () => {
         try {
             setLoading(true)
+            console.log('📋 Loading favorites...')
             const favs = await getFavorites()
-            setFavorites(favs)
+            console.log('✅ Favorites loaded:', favs)
+            setFavorites(favs || [])
         } catch (error) {
             console.error('Failed to load favorites:', error)
+            setFavorites([])
         } finally {
             setLoading(false)
         }
@@ -33,18 +33,25 @@ function FavoritesSidebar({ onSelectCity, isOpen, onClose }) {
         e.stopPropagation()
         try {
             await removeFavorite(city)
-            // Update local state
+            // Update local state immediately
             setFavorites(favorites.filter(fav => fav !== city))
+            // Reload to ensure sync with backend
+            await loadFavorites()
         } catch (error) {
             console.error('Failed to remove favorite:', error)
+            alert(error.response?.data?.message || 'Failed to remove favorite')
         }
     }
 
     const handleSelectCity = (city) => {
+        console.log('📍 Selected favorite city:', city)
         onSelectCity(city)
-        onClose() // Close sidebar on mobile
+        if (window.innerWidth < 768) {
+            onClose()
+        }
     }
 
+    // Don't render if not authenticated
     if (!isAuthenticated) {
         return null
     }
@@ -73,7 +80,7 @@ function FavoritesSidebar({ onSelectCity, isOpen, onClose }) {
                         </h2>
                         <button
                             onClick={onClose}
-                            className="md:hidden text-gray-500 hover:text-gray-700 dark:text-gray-400 cursor-pointer"
+                            className="md:hidden text-gray-500 hover:text-gray-700 dark:text-gray-400"
                         >
                             ✕
                         </button>
@@ -84,7 +91,7 @@ function FavoritesSidebar({ onSelectCity, isOpen, onClose }) {
                     {loading ? (
                         <div className="text-center py-8">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-                            <p className="text-gray-500 dark:text-gray-400 mt-2">Loading...</p>
+                            <p className="text-gray-500 dark:text-gray-400 mt-2">Loading favorites...</p>
                         </div>
                     ) : favorites.length === 0 ? (
                         <div className="text-center py-8">
@@ -111,7 +118,7 @@ function FavoritesSidebar({ onSelectCity, isOpen, onClose }) {
                                     </span>
                                     <button
                                         onClick={(e) => handleRemove(city, e)}
-                                        className="cursor-pointer text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        className="text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
                                         aria-label={`Remove ${city}`}
                                     >
                                         🗑️

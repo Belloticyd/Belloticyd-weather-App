@@ -29,9 +29,9 @@ favoriteRouter.get("/favorites", authMiddleware, getFavoriteCity)
 favoriteRouter.delete('/favorites/:city', authMiddleware, removeFavoriteCity);
 
 // Routes
-favoriteRouter.get('/', getFavorites)           // Get all favorites
-favoriteRouter.post('/', addFavorite)           // Add a favorite
-favoriteRouter.delete('/:city', removeFavorite) // Remove a favorite
+favoriteRouter.get('/', authMiddleware,  getFavorites)           // Get all favorites
+favoriteRouter.post('/', authMiddleware,  addFavorite)           // Add a favorite
+favoriteRouter.delete('/:city', authMiddleware,  removeFavorite) // Remove a favorite
 
 
 export default favoriteRouter

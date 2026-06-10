@@ -1,7 +1,7 @@
 
 
 // Import necessary modules and libraries
-import User from '../models/User';
+import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status-codes';
@@ -12,14 +12,20 @@ const STATUS = {
     FAILED: 'failed'
 }
 
-// START OF REGISTER NEW USER FUNCTION
-export const register =  async (req, res) => {
-
-    // Start of tryCatch Block
+// REGISTER NEW USER
+export const register = async (req, res) => {
     try {
         const { name, email, password } = req.body
 
         console.log('📝 Registration attempt for:', email)
+
+        // Validate input
+        if (!name || !email || !password) {
+            return res.status(400).json({
+                status: STATUS.FAILED,
+                message: 'Please provide name, email and password'
+            })
+        }
 
         // Check if user already exists
         const existingUser = await User.findOne({ email })
@@ -30,39 +36,40 @@ export const register =  async (req, res) => {
             });
         }
 
-        // Password hashing using bcryptjs
+        // Password hashing
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
 
-        // ✅ STEP 1: Create a new user instance FIRST
-        const user = new User({
+        // Create new user - use a different variable name like 'newUser'
+        const newUser = new User({
             name,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            favorites: [],
+            searchHistory: []
         })
 
-        // ✅ STEP 2: Save the new user to the database
-        await user.save()
-        console.log('✅ User created with ID:', user._id)
+        await newUser.save()
+        console.log('✅ User created with ID:', newUser._id)
 
-        // ✅ STEP 3: NOW generate JWT token (user exists!)
+        // Generate JWT token
         const token = jwt.sign(
-            { userId: user._id },  // ← Now user._id exists!
+            { userId: newUser._id },
             process.env.JWT_SECRET,
             { expiresIn: '7d' }
         )
 
-        // ✅ STEP 4: Respond with success
         res.status(201).json({
             status: STATUS.SUCCESS,
             message: 'New user registered successfully',
             data: {
                 token: token,
                 user: {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    createdAt: user.createdAt
+                    id: newUser._id,
+                    name: newUser.name,
+                    email: newUser.email,
+                    favorites: newUser.favorites || [],
+                    createdAt: newUser.createdAt
                 }
             }
         })
@@ -75,70 +82,67 @@ export const register =  async (req, res) => {
             error: error.message
         })
     }
-    // Start of tryCatch Block
-
 }
 // END OF REGISTER NEW USER FUNCTION
 
 
 // START OF LOGIN FUNCTION
 export const login = async (req, res) => {
-
-    // Start of try catch block for error handling
     try {
         const { email, password } = req.body
 
-        
-        // Check if the user exists in the database
-        const user = await User.findOne({ email })
-        if (!user) {
-             return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-                status: STATUS.FAILED, 
-                message: 'Invalid email or password' 
+        console.log('📝 Login attempt for:', email)
+
+        // Validate input
+        if (!email || !password) {
+            return res.status(400).json({
+                status: STATUS.FAILED,
+                message: 'Please provide email and password'
             })
         }
-        // End of user existence check
 
+        // Use 'foundUser' instead of just 'user' to avoid conflicts
+        const foundUser = await User.findOne({ email })
+        if (!foundUser) {
+            return res.status(401).json({
+                status: STATUS.FAILED,
+                message: 'Invalid email or password'
+            })
+        }
 
-        // Check password
-        // Compare the provided password with the stored hashed password
-        const isPasswordMatch = await bcrypt.compare(password, user.password)
-
-        // If the password is invalid, respond with an error message
+        const isPasswordMatch = await bcrypt.compare(password, foundUser.password)
         if (!isPasswordMatch) {
-            return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
-                status: STATUS.FAILED, 
-                message: 'Invalid  Password' 
+            return res.status(401).json({
+                status: STATUS.FAILED,
+                message: 'Invalid email or password'
             })
         }
-        // End of user password check
 
-        // If the password is valid, generate a JWT token for authentication
         const token = jwt.sign(
-            {userId: user._id || user.id || user.userId,},
-            process.env.JWT_SECRET, // Secret key for signing the token from .ENV files
-            { expiresIn: '7d' } // Token expiration time (e.g., 7 day)
+            { userId: foundUser._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
         )
 
-        // Respond with a success message and the generated token
-        res.status(httpStatus.OK).json({
+        console.log('✅ Login successful for:', email)
+
+        res.status(200).json({
             status: STATUS.SUCCESS,
             message: 'User logged in successfully',
             data: {
-                token,
+                token: token,
                 user: {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
-               
+                    id: foundUser._id,
+                    name: foundUser.name,
+                    email: foundUser.email,
+                    favorites: foundUser.favorites || []
                 }
-
             }
         })
 
-
     } catch (error) {
-        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+        console.error('❌ Login error:', error)
+        res.status(500).json({
             status: STATUS.ERROR,
             message: 'An error occurred while logging in',
             error: error.message
@@ -148,10 +152,57 @@ export const login = async (req, res) => {
 // END OF LOGIN FUNCTION
 
 
+// GET USER PROFILE - FIXED VERSION
+// GET USER PROFILE
+export const getProfile = async (req, res) => {
+    try {
+        console.log('📝 Getting profile for user ID:', req.userId)
+        
+        if (!req.userId) {
+            return res.status(401).json({
+                status: 'error',
+                message: 'Unauthorized'
+            })
+        }
+        
+        const profileUser = await User.findById(req.userId).select('-password')
+        
+        if (!profileUser) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found'
+            })
+        }
+        
+        console.log('✅ Profile found for:', profileUser.email)
+        
+        res.json({
+            status: 'success',
+            data: {
+                user: {
+                    id: profileUser._id,
+                    name: profileUser.name,
+                    email: profileUser.email,
+                    favorites: profileUser.favorites || [],
+                    createdAt: profileUser.createdAt
+                }
+            }
+        })
+    } catch (error) {
+        console.error('❌ Profile error:', error)
+        res.status(500).json({
+            status: 'error',
+            message: 'Server error',
+            error: error.message
+        })
+    }
+}
 
-
-
+// Export all functions
 export default {
     register,
-    login
+    login,
+    getProfile
 }
+
+

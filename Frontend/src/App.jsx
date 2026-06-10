@@ -17,6 +17,7 @@ function App() {
   const [city, setCity] = useState('')
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [showSidebar, setShowSidebar] = useState(false)
+  const [refreshFavorites, setRefreshFavorites] = useState(false)
   
  const { 
     data: weatherData,
@@ -42,6 +43,19 @@ function App() {
   const isLoading = weatherLoading || forecastLoading
   const error = weatherError || forecastError
 
+  useEffect(() => {
+        const handleFavoritesUpdate = () => {
+            setRefreshFavorites(prev => !prev)
+        }
+        
+        window.addEventListener('favoritesUpdated', handleFavoritesUpdate)
+        
+        return () => {
+            window.removeEventListener('favoritesUpdated', handleFavoritesUpdate)
+        }
+  }, [])
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
       {/* Sidebar Toggle Button */}
@@ -54,14 +68,16 @@ function App() {
           ⭐
         </button>
       )}
+      {/* Favorites Sidebar  */}
+        <FavoritesSidebar 
+            isOpen={showSidebar}
+            onClose={() => setShowSidebar(false)}
+            onSelectCity={handleSelectFavorite}
+            key={refreshFavorites} // This forces refresh
+        />
+      )
       
-      {/* Favorites Sidebar */}
-      <FavoritesSidebar 
-        isOpen={showSidebar}
-        onClose={() => setShowSidebar(false)}
-        onSelectCity={handleSelectFavorite}
-      />
-      
+           
       {/* Top Bar with Dark Mode and User Menu */}
       <div className="flex justify-between items-center p-4 ml-12">
         <DarkModeToggle />

@@ -24,55 +24,43 @@ const STATUS = {
 // Below code is used to create Authentication middleware that will be used to protect routes that require 
 // authentication. 
 // Start of Authentication middleware function
-export const authMiddleware = async (req, res, next) => {
-
+const authMiddleware = (req, res, next) => {
     try {
-        // Get token from Authorization header
         const authHeader = req.headers.authorization
-
-        console.log('🔐 Auth header:', authHeader ? 'Present' : 'Missing')
-
+        
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            console.log('🔐 Invalid or missing token')
-
-            return res.status(httpStatus.UNAUTHORIZED).json({ 
-                status: STATUS.FAILED,
-                message: 'Unauthorized User: Invalid or missing token'
+            return res.status(httpStatus.UNAUTHORIZED).json({
+                status: 'error',
+                message: 'No token provided'
             })
         }
 
-        // Extract token (remove "Bearer " prefix)
         const token = authHeader.split(' ')[1]
-
-        console.log('🔐 Token:', token ? 'Present' : 'Missing')
-        // Verify token
+        
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
         
-        // Add user info to request
         req.userId = decoded.userId
         
         next()
     } catch (error) {
-
-        console.error('🔐 Auth error:', error)
+        console.error('Auth middleware error:', error.message)
         
         if (error.name === 'JsonWebTokenError') {
-            return res.status(httpStatus.GATEWAY_TIMEOUT).json({ 
-                status: STATUS.FAILED,
-                message: 'Unauthorized: Invalid Users token'
+            return res.status(httpStatus.UNAUTHORIZED).json({
+                status: 'error',
+                message: 'Invalid token'
             })
         }
         if (error.name === 'TokenExpiredError') {
-            return res.status(httpStatus.GATEWAY_TIMEOUT).json({ 
-                status: STATUS.FAILED,
-                message: 'Unauthorized: Invalid Users token'
+            return res.status(httpStatus.UNAUTHORIZED).json({
+                status: 'error',
+                message: 'Token expired'
             })
         }
-        res.status(500).json({ 
-            
-            status: STATUS.FAILED,
-            message: 'Server Down: server error'
-         })
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            status: 'error',
+            message: 'Server error'
+        })
     }
 }
 

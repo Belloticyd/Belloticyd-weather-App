@@ -37,3 +37,10 @@ export const removeFavorite = async (city) => {
         throw error
     }
 }
+
+
+export default {
+    getFavorites,
+    addFavorite,
+    removeFavorite
+}
