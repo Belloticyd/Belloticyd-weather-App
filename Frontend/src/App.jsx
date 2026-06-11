@@ -1,7 +1,9 @@
 
 
-import { useState, useEffect } from 'react'
 
+import { useState, useEffect } from 'react'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 import { useAuth } from './context/AuthContext'
 import { useCurrentWeather, useForecast } from './hooks/useWeather'
@@ -17,9 +19,9 @@ function App() {
   const [city, setCity] = useState('')
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [showSidebar, setShowSidebar] = useState(false)
-  const [refreshFavorites, setRefreshFavorites] = useState(false)
+  const [refreshFavorites, setRefreshFavorites] = useState(0) // Use number for refresh trigger
   
- const { 
+  const { 
     data: weatherData,
     isLoading: weatherLoading,
     error: weatherError,
@@ -32,52 +34,75 @@ function App() {
     error: forecastError
   } = useForecast(city)
 
+  // Listen for favorites updates
+  useEffect(() => {
+    const handleFavoritesUpdate = () => {
+      console.log('🔄 Favorites updated, triggering sidebar refresh')
+      setRefreshFavorites(prev => prev + 1)
+    }
+    
+    window.addEventListener('favoritesUpdated', handleFavoritesUpdate)
+    
+    return () => {
+      window.removeEventListener('favoritesUpdated', handleFavoritesUpdate)
+    }
+  }, [])
+
   const handleSearch = (searchCity) => {
     setCity(searchCity)
   }
 
   const handleSelectFavorite = (favoriteCity) => {
+    console.log('Selected favorite:', favoriteCity)
     setCity(favoriteCity)
+    // Close sidebar on mobile after selection
+    if (window.innerWidth < 768) {
+      setShowSidebar(false)
+    }
   }
 
   const isLoading = weatherLoading || forecastLoading
   const error = weatherError || forecastError
 
-  useEffect(() => {
-        const handleFavoritesUpdate = () => {
-            setRefreshFavorites(prev => !prev)
-        }
-        
-        window.addEventListener('favoritesUpdated', handleFavoritesUpdate)
-        
-        return () => {
-            window.removeEventListener('favoritesUpdated', handleFavoritesUpdate)
-        }
-  }, [])
-
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+      
+      {/* Toast Container */}
+      <div className="...">
+      <ToastContainer 
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+      />
+      {/* Rest of your app */}
+      </div>
+      
       {/* Sidebar Toggle Button */}
       {isAuthenticated && (
-        <button
+          <button
             onClick={() => setShowSidebar(!showSidebar)}
-            className="fixed top-4 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            style={{ position: 'fixed', top: '16px', left: '16px', zIndex: 9999 }}
-        >
-            ⭐
-        </button>
+            className="fixed top-4 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+            style={{ zIndex: 9999 }}
+          >
+            {showSidebar ? '✕' : '⭐'}
+          </button>
       )}
-      {/* Favorites Sidebar  */}
-        <FavoritesSidebar 
-            isOpen={showSidebar}
-            onClose={() => setShowSidebar(false)}
-            onSelectCity={handleSelectFavorite}
-            key={refreshFavorites} // This forces refresh
-        />
-      )
       
-           
+      {/* Favorites Sidebar */}
+      <FavoritesSidebar 
+        isOpen={showSidebar}
+        onClose={() => setShowSidebar(false)}
+        onSelectCity={handleSelectFavorite}
+        refreshTrigger={refreshFavorites}
+      />
+      
       {/* Top Bar with Dark Mode and User Menu */}
       <div className="flex justify-between items-center p-4 ml-12">
         <DarkModeToggle />
@@ -128,38 +153,6 @@ function App() {
 
         {/* Search Bar */}
         <SearchBar onSearch={handleSearch} isLoading={isLoading} />
-
-        {isAuthenticated && (
-            <div className="mt-4 flex gap-2">
-                <input
-                    type="text"
-                    id="quickFavoriteCity"
-                    placeholder="City to add to favorites"
-                    className="px-3 py-2 border rounded"
-                />
-                <button
-                    onClick={async () => {
-                        const city = document.getElementById('quickFavoriteCity').value
-                        if (!city) return
-                        const token = localStorage.getItem('token')
-                        const response = await fetch('http://localhost:8000/api/favorites', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
-                            },
-                            body: JSON.stringify({ city })
-                        })
-                        const data = await response.json()
-                        console.log('Add result:', data)
-                        alert(`${city} added to favorites!`)
-                    }}
-                    className="px-4 py-2 bg-green-500 text-white rounded"
-                >
-                    Add to Favorites (Test)
-                </button>
-            </div>
-        )}
 
         {/* Error Display */}
         {error && (
