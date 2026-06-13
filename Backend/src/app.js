@@ -9,7 +9,7 @@ import dotenv from "dotenv"
 
 import authRoute from "./routes/auth.routes"
 import favoriteRoutes from "./routes/favoritesRoutes"
-import searchHistoryRouter from "./routes/searchHistory"
+import historyRouter from "./routes/searchHistory.js"
 
 
 // below code is used to Load environment variables
@@ -77,7 +77,7 @@ app.use('/api/auth', authRoute)
 app.use('/api/auth', authRoute)
 app.use("/api/favorites", favoriteRoutes)
 app.use("/api/favorite", favoriteRoutes)
-app.use('/api/history', searchHistoryRouter)
+app.use('/api/history', historyRouter)
 
 
 

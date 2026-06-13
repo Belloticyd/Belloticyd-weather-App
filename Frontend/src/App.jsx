@@ -13,6 +13,7 @@ import ForecastCard from './components/ForecastCard'
 import DarkModeToggle from './components/DarkModeToggle'
 import AuthModal from './components/AuthModal'
 import FavoritesSidebar from './components/FavoritesSidebar'
+import SearchHistory from './components/SearchHistory'
 
 function App() {
   const { user, logout, isAuthenticated } = useAuth()
@@ -20,6 +21,7 @@ function App() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [showSidebar, setShowSidebar] = useState(false)
   const [refreshFavorites, setRefreshFavorites] = useState(0) // Use number for refresh trigger
+  const [showHistory, setShowHistory] = useState(false)
   
   const { 
     data: weatherData,
@@ -88,13 +90,32 @@ function App() {
       {isAuthenticated && (
           <button
             onClick={() => setShowSidebar(!showSidebar)}
-            className="fixed top-4 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+            className="fixed top-4 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:bg-gray-100 transition-colors cursor-pointer"
             style={{ zIndex: 9999 }}
           >
             {showSidebar ? '✕' : '⭐'}
           </button>
       )}
       
+
+      {/* // Add history button in the top bar (next to favorites button) */}
+      {isAuthenticated && (
+          <>
+              <button
+                  onClick={() => setShowHistory(!showHistory)}
+                  className="fixed top-4 left-20 z-50 p-2 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+              >
+                  📜
+              </button>
+              <SearchHistory 
+                  isOpen={showHistory}
+                  onClose={() => setShowHistory(false)}
+                  onSelectCity={handleSelectFavorite}
+              />
+          </>
+      )}
+
+
       {/* Favorites Sidebar */}
       <FavoritesSidebar 
         isOpen={showSidebar}

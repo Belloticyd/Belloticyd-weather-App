@@ -6,23 +6,29 @@ import express from 'express'
 
 
 import { 
-  addToSearchHistory,
-  getSearchHistory,
+  addToSearchHistory, 
+  getSearchHistory, 
   removeSearchHistory,
-} from "../controllers/userSearchHistory.js"
+  clearSearchHistory 
+} from '../controllers/userSearchHistory.js'
 
+import User from '../models/User.js'
 import authMiddleware from '../middleware/auth';
 
 // Below code is the Instance of a Router
 const searchHistoryRouter = express.Router();
 
+// All routes require authentication
+searchHistoryRouter.use(authMiddleware)
+
 
 
 
 // History Routes
-searchHistoryRouter.post('/history', authMiddleware, addToSearchHistory);
-searchHistoryRouter.get('/history', authMiddleware, getSearchHistory);
-searchHistoryRouter.delete("/history/:city", authMiddleware, removeSearchHistory)
+searchHistoryRouter.post('/',  addToSearchHistory);
+searchHistoryRouter.get('/',  getSearchHistory);
+searchHistoryRouter.delete("/:city",  removeSearchHistory)
+searchHistoryRouter.delete("/",  clearSearchHistory )
 
 
 
