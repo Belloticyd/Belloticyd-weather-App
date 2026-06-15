@@ -4,9 +4,8 @@
   "description": "How to build a simple backend src/server",
   "main": "src/server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon --exec babel-node src/server.js",
-    "build": "babel src -d dist"
+    "start": "node_modules/.bin/nodemon --exec babel-node src/server.js",
+    "test": "ava"
   },
   "keywords": [
     "Express",
@@ -20,6 +19,7 @@
     "@prisma/client": "^7.1.0",
     "@types/body-parser": "^1.19.6",
     "axios": "^1.13.6",
+    "babel-register": "^6.26.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.2",
@@ -55,19 +55,19 @@
     "yup": "^1.7.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.28.3",
-    "@babel/core": "^7.28.5",
-    "@babel/node": "^7.28.0",
-    "@babel/preset-env": "^7.28.5",
+    "@babel/cli": "^7.29.7",
+    "@babel/core": "^7.29.7",
+    "@babel/node": "^7.29.7",
+    "@babel/preset-env": "^7.29.7",
     "@babel/preset-react": "^7.28.5",
     "ava": "^6.4.1",
-    "nodemon": "^3.1.11",
     "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.17.2",
     "eslint-plugin-jsx-a11y": "^6.2.1",
     "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-react": "^7.12.4",
+    "nodemon": "^3.1.11",
     "parcel-bundler": "^1.12.3"
   }
 }
