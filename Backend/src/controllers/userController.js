@@ -17,7 +17,7 @@ export const register = async (req, res) => {
     try {
         const { name, email, password } = req.body
 
-        console.log('📝 Registration attempt for:', email)
+        // // console.log('📝 Registration attempt for:', email)
 
         // Validate input
         if (!name || !email || !password) {
@@ -50,7 +50,7 @@ export const register = async (req, res) => {
         })
 
         await newUser.save()
-        console.log('✅ User created with ID:', newUser._id)
+        // // console.log('✅ User created with ID:', newUser._id)
 
         // Generate JWT token
         const token = jwt.sign(
@@ -91,7 +91,7 @@ export const login = async (req, res) => {
     try {
         const { email, password } = req.body
 
-        console.log('📝 Login attempt for:', email)
+        // // console.log('📝 Login attempt for:', email)
 
         // Validate input
         if (!email || !password) {
@@ -124,7 +124,7 @@ export const login = async (req, res) => {
             { expiresIn: '7d' }
         )
 
-        console.log('✅ Login successful for:', email)
+        // // console.log('✅ Login successful for:', email)
 
         res.status(200).json({
             status: STATUS.SUCCESS,
@@ -135,7 +135,9 @@ export const login = async (req, res) => {
                     id: foundUser._id,
                     name: foundUser.name,
                     email: foundUser.email,
-                    favorites: foundUser.favorites || []
+                    favorites: foundUser.favorites || [],
+                    searchHistory: foundUser.searchHistory || [],
+                    createdAt: foundUser.createdAt
                 }
             }
         })
@@ -156,7 +158,7 @@ export const login = async (req, res) => {
 // GET USER PROFILE
 export const getProfile = async (req, res) => {
     try {
-        console.log('📝 Getting profile for user ID:', req.userId)
+        // // console.log('📝 Getting profile for user ID:', req.userId)
         
         if (!req.userId) {
             return res.status(401).json({
@@ -174,7 +176,7 @@ export const getProfile = async (req, res) => {
             })
         }
         
-        console.log('✅ Profile found for:', profileUser.email)
+        // // console.log('✅ Profile found for:', profileUser.email)
         
         res.json({
             status: 'success',
@@ -184,6 +186,7 @@ export const getProfile = async (req, res) => {
                     name: profileUser.name,
                     email: profileUser.email,
                     favorites: profileUser.favorites || [],
+                    searchHistory: profileUser.searchHistory || [],
                     createdAt: profileUser.createdAt
                 }
             }

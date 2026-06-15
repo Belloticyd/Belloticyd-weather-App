@@ -1,6 +1,7 @@
 
 
 
+
 import { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -8,14 +9,14 @@ import { useAuth } from '../context/AuthContext'
 
 const API_URL = 'http://localhost:8000/api'
 
-function FavoritesSidebar({ onSelectCity, isOpen, onClose }) {
+function FavoritesSidebar({ onSelectCity, isOpen, onClose, refreshTrigger }) {
     const [favorites, setFavorites] = useState([])
     const [loading, setLoading] = useState(false)
     const { isAuthenticated } = useAuth()
-    
+
     const getToken = () => localStorage.getItem('token')
 
-    const loadFavorites = useCallback(() => {
+    const loadFavorites = useCallback(async () => {
         const token = getToken()
         
         if (!isAuthenticated || !token) {
@@ -26,67 +27,77 @@ function FavoritesSidebar({ onSelectCity, isOpen, onClose }) {
         
         setLoading(true)
         
-        axios.get(`${API_URL}/favorites`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        })
-        .then(response => {
+        try {
+            const response = await axios.get(`${API_URL}/favorites`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
             const favs = response.data.data?.favorites || []
             setFavorites(favs)
-            setLoading(false)
-        })
-        .catch(error => {
+        } catch (error) {
             console.error('Error loading favorites:', error)
             toast.error('Failed to load favorites', {
                 position: "top-right",
                 autoClose: 3000,
             })
             setFavorites([])
+        } finally {
             setLoading(false)
-        })
+        }
     }, [isAuthenticated])
 
-    const handleRemove = (city) => {
+    const handleRemove = async (city, e) => {
+        e.stopPropagation()
         const token = getToken()
         
-        toast.info(`Removing ${city} from favorites...`, {
+        // Show loading toast
+        const toastId = toast.loading(`Removing ${city} from favorites...`, {
             position: "top-right",
-            autoClose: 1000,
         })
         
-        axios.delete(`${API_URL}/favorites/${encodeURIComponent(city)}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        })
-        .then(() => {
-            loadFavorites()
-            toast.success(`🗑️ ${city} removed from favorites!`, {
-                position: "top-right",
-                autoClose: 2000,
-                icon: "⭐",
+        try {
+            await axios.delete(`${API_URL}/favorites/${encodeURIComponent(city)}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
             })
-        })
-        .catch(error => {
+            await loadFavorites()
+            window.dispatchEvent(new CustomEvent('favoritesUpdated'))
+            
+            // Update toast to success
+            toast.update(toastId, {
+                render: `🗑️ "${city}" removed from favorites!`,
+                type: "success",
+                isLoading: false,
+                autoClose: 2000,
+            })
+        } catch (error) {
             console.error('Remove error:', error)
-            toast.error(`❌ Failed to remove ${city}`, {
-                position: "top-right",
+            toast.update(toastId, {
+                render: `❌ Failed to remove "${city}" from favorites`,
+                type: "error",
+                isLoading: false,
                 autoClose: 3000,
             })
-        })
+        }
     }
 
     const handleSelectCity = (city) => {
         onSelectCity(city)
         onClose()
+        
         toast.info(`📍 Loading weather for ${city}`, {
             position: "bottom-center",
             autoClose: 1500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
         })
     }
 
     useEffect(() => {
-        if (isOpen) {
+        if (isOpen && isAuthenticated) {
             loadFavorites()
         }
-    }, [isOpen, loadFavorites])
+    }, [isOpen, isAuthenticated, loadFavorites, refreshTrigger])
 
     useEffect(() => {
         const handleFavoritesChanged = () => {
@@ -95,8 +106,8 @@ function FavoritesSidebar({ onSelectCity, isOpen, onClose }) {
             }
         }
         
-        window.addEventListener('favoritesChanged', handleFavoritesChanged)
-        return () => window.removeEventListener('favoritesChanged', handleFavoritesChanged)
+        window.addEventListener('favoritesUpdated', handleFavoritesChanged)
+        return () => window.removeEventListener('favoritesUpdated', handleFavoritesChanged)
     }, [isOpen, loadFavorites])
 
     if (!isAuthenticated) return null
@@ -122,7 +133,7 @@ function FavoritesSidebar({ onSelectCity, isOpen, onClose }) {
                         </h2>
                         <div className="flex gap-2">
                             <button
-                                onClick={() => loadFavorites()}
+                                onClick={loadFavorites}
                                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400"
                                 title="Refresh"
                             >
@@ -166,10 +177,7 @@ function FavoritesSidebar({ onSelectCity, isOpen, onClose }) {
                                         📍 {city}
                                     </span>
                                     <button
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            handleRemove(city)
-                                        }}
+                                        onClick={(e) => handleRemove(city, e)}
                                         className="text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
                                     >
                                         🗑️

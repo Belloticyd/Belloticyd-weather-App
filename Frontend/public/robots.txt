@@ -1,0 +1,6 @@
+
+
+
+User-agent: *
+Allow: /
+Sitemap: https://weather-app-frontend.vercel.app/sitemap.xml

@@ -21,13 +21,13 @@ function Login({ onSwitchToRegister }) {
     setError('')
     setLoading(true)
 
-    console.log('Submitting login for:', email)
+    // // console.log('Submitting login for:', email)
     const result = await login(email, password)
-    console.log('Login result:', result)
+    // // console.log('Login result:', result)
     
     if (result.success) {
-      console.log('Login successful, modal will close')
-      // Modal will close automatically via AuthModal's useEffect
+      // // console.log('Login successful, modal will close')
+      // // Modal will close automatically via AuthModal's useEffect
     } else {
       setError(result.error)
     }

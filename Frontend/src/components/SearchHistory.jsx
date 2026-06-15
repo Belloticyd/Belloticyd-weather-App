@@ -3,8 +3,8 @@
 
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { useAuth } from '../context/AuthContext'
 import { toast } from 'react-toastify'
+import { useAuth } from '../context/AuthContext'
 
 const API_URL = 'http://localhost:8000/api'
 
@@ -18,23 +18,16 @@ function SearchHistory({ onSelectCity, isOpen, onClose }) {
     const loadHistory = async () => {
         const token = getToken()
         
-        if (!isAuthenticated || !token) {
-            console.log('Not authenticated, skipping history load')
-            return
-        }
+        if (!isAuthenticated || !token) return
         
         setLoading(true)
-        console.log('Loading search history...')
         
         try {
             const response = await axios.get(`${API_URL}/history`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
-            console.log('History API response:', response.data)
             
-            const historyData = response.data.data?.history || []
-            console.log('History data:', historyData)
-            
+            let historyData = response.data.data || response.data.history || []
             setHistory(historyData)
         } catch (error) {
             console.error('Error loading history:', error)
@@ -48,15 +41,28 @@ function SearchHistory({ onSelectCity, isOpen, onClose }) {
         const token = getToken()
         
         if (window.confirm('Clear all search history?')) {
+            const toastId = toast.loading('Clearing search history...')
+            
             try {
                 await axios.delete(`${API_URL}/history`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
                 await loadHistory()
-                toast.success('📜 Search history cleared!')
+                window.dispatchEvent(new CustomEvent('historyUpdated'))
+                
+                toast.update(toastId, {
+                    render: '📜 All search history cleared!',
+                    type: "success",
+                    isLoading: false,
+                    autoClose: 2000,
+                })
             } catch (error) {
-                console.error('Clear error:', error)
-                toast.error('Failed to clear history')
+                toast.update(toastId, {
+                    render: '❌ Failed to clear history',
+                    type: "error",
+                    isLoading: false,
+                    autoClose: 3000,
+                })
             }
         }
     }
@@ -65,21 +71,39 @@ function SearchHistory({ onSelectCity, isOpen, onClose }) {
         e.stopPropagation()
         const token = getToken()
         
+        const toastId = toast.loading(`Removing ${city} from history...`)
+        
         try {
             await axios.delete(`${API_URL}/history/${encodeURIComponent(city)}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             await loadHistory()
-            toast.success(`🗑️ ${city} removed from history`)
+            window.dispatchEvent(new CustomEvent('historyUpdated'))
+            
+            toast.update(toastId, {
+                render: `🗑️ "${city}" removed from history`,
+                type: "success",
+                isLoading: false,
+                autoClose: 2000,
+            })
         } catch (error) {
-            console.error('Remove error:', error)
-            toast.error('Failed to remove from history')
+            toast.update(toastId, {
+                render: `❌ Failed to remove "${city}" from history`,
+                type: "error",
+                isLoading: false,
+                autoClose: 3000,
+            })
         }
     }
 
     const handleSelectCity = (city) => {
         onSelectCity(city)
         onClose()
+        
+        toast.info(`📍 Loading weather for ${city}`, {
+            position: "bottom-center",
+            autoClose: 1500,
+        })
     }
 
     useEffect(() => {
@@ -88,7 +112,6 @@ function SearchHistory({ onSelectCity, isOpen, onClose }) {
         }
     }, [isOpen, isAuthenticated])
 
-    // Listen for history updates
     useEffect(() => {
         const handleHistoryUpdate = () => {
             if (isOpen) {
@@ -122,6 +145,13 @@ function SearchHistory({ onSelectCity, isOpen, onClose }) {
                             📜 Search History
                         </h2>
                         <div className="flex gap-2">
+                            <button
+                                onClick={loadHistory}
+                                className="text-blue-500 hover:text-blue-700 text-sm"
+                                title="Refresh"
+                            >
+                                🔄
+                            </button>
                             {history.length > 0 && (
                                 <button
                                     onClick={handleClearHistory}

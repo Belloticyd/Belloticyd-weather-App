@@ -7,7 +7,14 @@ import App from './App.jsx'
 import './index.css'
 import 'react-toastify/dist/ReactToastify.css'  // Add this line
 
+import { initGA, trackEvent } from './utils/analytics'
+
 const queryClient = new QueryClient()
+
+// Initialize analytics in production
+if (import.meta.env.PROD) {
+    initGA()
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

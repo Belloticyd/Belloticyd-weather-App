@@ -10,12 +10,12 @@ function AuthModal({ isOpen, onClose }) {
   const [isLogin, setIsLogin] = useState(true)
   const { isAuthenticated } = useAuth()
 
-  console.log('AuthModal - isAuthenticated:', isAuthenticated, 'isOpen:', isOpen)
+  // // console.log('AuthModal - isAuthenticated:', isAuthenticated, 'isOpen:', isOpen)
 
   // Close modal when user becomes authenticated
   useEffect(() => {
     if (isAuthenticated && isOpen) {
-      console.log('✅ User authenticated, closing modal')
+      // // console.log('✅ User authenticated, closing modal')
       onClose()
       setIsLogin(true)
     }

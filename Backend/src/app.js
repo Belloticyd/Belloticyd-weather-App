@@ -10,6 +10,7 @@ import dotenv from "dotenv"
 import authRoute from "./routes/auth.routes"
 import favoriteRoutes from "./routes/favoritesRoutes"
 import historyRouter from "./routes/searchHistory.js"
+import testHistoryRouter from "./routes/testHistory.js"
 
 
 // below code is used to Load environment variables
@@ -46,6 +47,7 @@ mongoose.connect(process.env.MONGODB_URI)
   console.log("Connected to MongoDB successfully!");
   app.listen(process.env.PORT, () => {
     console.log(`Server running on port ${process.env.PORT}`);
+    // // console.log(`📜 History endpoint: http://localhost:${process.env.PORT}/api/history\n`)
   });
 })
 .catch((err) => console.log(err));
@@ -78,6 +80,18 @@ app.use('/api/auth', authRoute)
 app.use("/api/favorites", favoriteRoutes)
 app.use("/api/favorite", favoriteRoutes)
 app.use('/api/history', historyRouter)
+app.use("/api/test-history", testHistoryRouter)
+// // console.log('✅ History routes registered at /api/history')
+
+
+// // Log all registered routes on startup
+// // console.log('\n📋 REGISTERED ROUTES:')
+// // console.log('  ✅ /api/test')
+// // console.log('  ✅ /api/auth')
+// // console.log('  ✅ /api/favorites')
+//  // console.log('  ✅ /api/history')
+
+
 
 
 

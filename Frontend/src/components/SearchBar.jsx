@@ -1,20 +1,23 @@
 
 
 
+
 import { useState } from 'react'
 import axios from 'axios'
-import { useAuth } from '../context/AuthContext'
 import { toast } from 'react-toastify'
+import { useAuth } from '../context/AuthContext'
 
 const API_URL = 'http://localhost:8000/api'
 
 function SearchBar({ onSearch, isLoading }) {
     const [city, setCity] = useState('')
-    const { isAuthenticated, token } = useAuth()
+    const { isAuthenticated } = useAuth()
+    const getToken = () => localStorage.getItem('token')
 
     const saveToHistory = async (searchCity) => {
         if (!isAuthenticated) return
         
+        const token = getToken()
         try {
             await axios.post(`${API_URL}/history`, { 
                 city: searchCity, 
@@ -22,10 +25,23 @@ function SearchBar({ onSearch, isLoading }) {
             }, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
-            // Dispatch event to update history sidebar
             window.dispatchEvent(new CustomEvent('historyUpdated'))
+            
+            // Show success notification
+            toast.info(`📜 "${searchCity}" saved to search history`, {
+                position: "bottom-center",
+                autoClose: 1500,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            })
         } catch (error) {
             console.error('Failed to save to history:', error)
+            toast.warning(`⚠️ Could not save "${searchCity}" to history`, {
+                position: "bottom-center",
+                autoClose: 2000,
+            })
         }
     }
 
@@ -33,17 +49,13 @@ function SearchBar({ onSearch, isLoading }) {
         e.preventDefault()
         if (city.trim()) {
             const searchCity = city.trim()
+            
+            // Call the search function
             onSearch(searchCity)
             
-            // Save to history
-            await saveToHistory(searchCity)
-            
-            // Show toast notification
+            // Save to history if logged in
             if (isAuthenticated) {
-                toast.info(`📜 "${searchCity}" saved to history`, {
-                    position: "bottom-center",
-                    autoClose: 1500,
-                })
+                await saveToHistory(searchCity)
             }
             
             setCity('')

@@ -15,11 +15,11 @@ const STATUS = {
 // Get user's favorite cities
 export const getFavorites = async (req, res) => {
     try {
-        console.log('📝 Getting favorites for user ID:', req.userId)
+        // // console.log('📝 Getting favorites for user ID:', req.userId)
         
         // Make sure req.userId exists
         if (!req.userId) {
-            console.log('❌ No userId in request')
+            // // console.log('❌ No userId in request')
             return res.status(httpStatus.UNAUTHORIZED).json({
                 status: STATUS.ERROR,
                 message: 'Unauthorized - no user ID'
@@ -29,15 +29,15 @@ export const getFavorites = async (req, res) => {
         const user = await User.findById(req.userId)
         
         if (!user) {
-            console.log('❌ User not found for ID:', req.userId)
+            // // console.log('❌ User not found for ID:', req.userId)
             return res.status(httpStatus.NOT_FOUND).json({
                 status: STATUS.ERROR,
                 message: 'User not found'
             })
         }
         
-        console.log('✅ Found user:', user.email)
-        console.log('📋 Favorites:', user.favorites || [])
+        // // console.log('✅ Found user:', user.email)
+        // // console.log('📋 Favorites:', user.favorites || [])
         
         res.json({
             status: STATUS.SUCCESS,
@@ -46,7 +46,7 @@ export const getFavorites = async (req, res) => {
             }
         })
     } catch (error) {
-        console.error('❌ Get favorites error:', error)
+     console.error('❌ Get favorites error:', error)
         res.status(500).json({
             status: STATUS.ERROR,
             message: 'Failed to fetch favorites',
@@ -61,10 +61,10 @@ export const addFavorite = async (req, res) => {
     try {
         const { city } = req.body
         
-        console.log('📝 Adding favorite:', city, 'for user:', req.userId)
-        console.log('📝 ===== ADD FAVORITE STARTED =====')
-        console.log('City to add:', city)
-        console.log('User ID:', req.userId)
+        // // console.log('📝 Adding favorite:', city, 'for user:', req.userId)
+        // // console.log('📝 ===== ADD FAVORITE STARTED =====')
+        // // console.log('City to add:', city)
+        // // console.log('User ID:', req.userId)
         
         if (!city) {
             return res.status(400).json({
@@ -89,8 +89,8 @@ export const addFavorite = async (req, res) => {
             })
         }
 
-        console.log('✅ Found user:', user.email)
-        console.log('Current favorites:', user.favorites)
+        // // console.log('✅ Found user:', user.email)
+        // // console.log('Current favorites:', user.favorites)
         
         // Initialize favorites array if it doesn't exist
         if (!user.favorites) {
@@ -109,8 +109,8 @@ export const addFavorite = async (req, res) => {
         user.favorites.push(city)
         await user.save()
         
-        console.log('✅ Favorite added:', city)
-        console.log('📋 Updated favorites:', user.favorites)
+        // // console.log('✅ Favorite added:', city)
+        // // console.log('📋 Updated favorites:', user.favorites)
         
         res.json({
             status: STATUS.SUCCESS,
@@ -134,7 +134,7 @@ export const removeFavorite = async (req, res) => {
     try {
         const { city } = req.params
         
-        console.log('📝 Removing favorite:', city, 'for user:', req.userId)
+        // // console.log('📝 Removing favorite:', city, 'for user:', req.userId)
         
         if (!req.userId) {
             return res.status(httpStatus.UNAUTHORIZED).json({
@@ -161,8 +161,8 @@ export const removeFavorite = async (req, res) => {
         user.favorites = user.favorites.filter(fav => fav !== city)
         await user.save()
         
-        console.log('✅ Favorite removed:', city)
-        console.log('📋 Updated favorites:', user.favorites)
+        // // console.log('✅ Favorite removed:', city)
+        // // console.log('📋 Updated favorites:', user.favorites)
         
         res.json({
             status: STATUS.SUCCESS,

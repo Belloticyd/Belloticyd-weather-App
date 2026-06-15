@@ -20,8 +20,8 @@ const weatherAPI = axios.create({
 // End of creating axios instance
 
 
-// Function to get current weather
-// Start of the function to get the current weather
+// // Function to get current weather
+// // // Start of the function to get the current weather
 export const getCurrentWeather = async (city) => {
 
     // Below code is the tryCatch Block
@@ -43,7 +43,7 @@ export const getCurrentWeather = async (city) => {
 
 
 // Function to get 5-day forecast
-// Start of the function to get a 5 days forecast
+// // // Start of the function to get a 5 days forecast
 export const getForeCastWeather = async (city) => {
 
     try {

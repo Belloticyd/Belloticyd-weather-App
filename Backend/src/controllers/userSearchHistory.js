@@ -17,12 +17,12 @@ const STATUS = {
 // 1. GET SEARCH HISTORY
 export const getSearchHistory = async (req, res) => {
   try {
-        console.log('📜 GET /api/history - User ID:', req.userId)
+        // // console.log('📜 GET /api/history - User ID:', req.userId)
             
         const user = await User.findById(req.userId)
         
         if (!user) {
-            console.log('❌ User not found')
+            // // console.log('❌ User not found')
             return res.status(httpStatus.NOT_FOUND).json({
                 status: STATUS.ERROR,
                 message: 'User not found'
@@ -30,7 +30,7 @@ export const getSearchHistory = async (req, res) => {
         }
         
         const history = user.searchHistory || []
-        console.log('✅ Found', history.length, 'history items')
+        // // console.log('✅ Found', history.length, 'history items')
         
         res.json({
             status: 'success',
@@ -52,7 +52,7 @@ export const getSearchHistory = async (req, res) => {
 export const addToSearchHistory = async (req, res) => {
    try {
         const { city, weatherData } = req.body
-        console.log('📝 POST /api/history - User ID:', req.userId, 'City:', city)
+        // // console.log('📝 POST /api/history - User ID:', req.userId, 'City:', city)
         
         if (!city) {
             return res.status(httpStatus.BAD_REQUEST).json({
@@ -89,7 +89,7 @@ export const addToSearchHistory = async (req, res) => {
         
         await user.save()
         
-        console.log('✅ Added to history, total:', user.searchHistory.length)
+        // // console.log('✅ Added to history, total:', user.searchHistory.length)
         
         res.json({
             status: STATUS.SUCCESS,
@@ -113,7 +113,7 @@ export const removeSearchHistory = async (req, res) => {
      try {
         const { city } = req.params
         const decodedCity = decodeURIComponent(city)
-        console.log('🗑️ DELETE /api/history/:city - User:', req.userId, 'City:', decodedCity)
+        // // console.log('🗑️ DELETE /api/history/:city - User:', req.userId, 'City:', decodedCity)
         
        
         const user = await User.findById(req.userId)
@@ -135,7 +135,7 @@ export const removeSearchHistory = async (req, res) => {
         
         await user.save()
         
-        console.log('✅ Removed from history, remaining:', user.searchHistory.length)
+        // // console.log('✅ Removed from history, remaining:', user.searchHistory.length)
         
         res.json({
             status: STATUS.SUCCESS,
@@ -155,7 +155,7 @@ export const removeSearchHistory = async (req, res) => {
 // 4. CLEAR ALL SEARCH HISTORY
 export const clearSearchHistory = async (req, res) => {
     try {
-        console.log('🗑️ DELETE /api/history - User:', req.userId)
+        // // console.log('🗑️ DELETE /api/history - User:', req.userId)
         
        
         const user = await User.findById(req.userId)
@@ -170,7 +170,7 @@ export const clearSearchHistory = async (req, res) => {
         user.searchHistory = []
         await user.save()
         
-        console.log('✅ All history cleared')
+        // // console.log('✅ All history cleared')
         
         res.json({
             status: STATUS.SUCCESS,

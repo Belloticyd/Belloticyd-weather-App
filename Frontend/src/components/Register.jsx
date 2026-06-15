@@ -37,13 +37,13 @@ function Register({ onSwitchToLogin }) {
     
     setLoading(true)
     
-    console.log('Submitting registration for:', email)
+    // // console.log('Submitting registration for:', email)
     const result = await register(name, email, password)
-    console.log('Registration result:', result)
+    // // console.log('Registration result:', result)
     
     if (result.success) {
-      console.log('Registration successful, modal will close')
-      // Modal will close automatically via AuthModal's useEffect
+      // // console.log('Registration successful, modal will close')
+      // // Modal will close automatically via AuthModal's useEffect
     } else {
       setError(result.error)
     }
