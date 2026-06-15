@@ -4,8 +4,9 @@
   "description": "How to build a simple backend src/server",
   "main": "src/server.js",
   "scripts": {
-    "start": "node_modules/.bin/nodemon --exec babel-node src/server.js",
-    "test": "ava"
+    "start": "node src/server.js",
+    "dev": "nodemon --exec babel-node src/server.js",
+    "build": "babel src -d dist"
   },
   "keywords": [
     "Express",
