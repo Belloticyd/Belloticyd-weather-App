@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "How to build a simple backend src/server",
   "main": "src/server.js",
+  "type": "module",
   "scripts": {
-    "start": "node_modules/.bin/nodemon --exec babel-node src/server.js",
+    "start": "node src/server.js",
+    "dev": "nodemon --exec babel-node src/server.js",
     "test": "ava"
   },
   "keywords": [
