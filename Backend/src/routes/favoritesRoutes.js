@@ -15,9 +15,9 @@ import {
     addFavorite,
     removeFavorite
 
- } from '../controllers/favoritesController.js'
+} from '../controllers/favoritesController.js'
 
-import authMiddleware from '../middleware/auth';
+import authMiddleware from '../middleware/auth.js';
 
 // Below code is the Instance of a Router
 const favoriteRouter = express.Router();

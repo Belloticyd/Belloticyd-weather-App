@@ -7,8 +7,8 @@ import cors from "cors"
 import dotenv from "dotenv"
 
 
-import authRoute from "./routes/auth.routes"
-import favoriteRoutes from "./routes/favoritesRoutes"
+import authRoute from "./routes/auth.routes.js"
+import favoriteRoutes from "./routes/favoritesRoutes.js"
 import historyRouter from "./routes/searchHistory.js"
 import testHistoryRouter from "./routes/testHistory.js"
 

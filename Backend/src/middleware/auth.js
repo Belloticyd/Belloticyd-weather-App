@@ -5,7 +5,7 @@
 // Below code is used to import the necessary modules and libraries for the user controller. It includes the User model
 //  for interacting with the users collection in the database, bcryptjs for hashing passwords, jsonwebtoken for creating
 //  and verifying JWT tokens, and http-status-codes for standardized HTTP status codes.
-import User from '../models/User';
+import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status-codes';

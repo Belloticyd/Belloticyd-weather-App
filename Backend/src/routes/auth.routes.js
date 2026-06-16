@@ -3,9 +3,9 @@
 // Below code is used to import the necessaries libraries
 import express from 'express'
 
-import { register, login, getProfile } from "../controllers/userController";
+import { register, login, getProfile } from "../controllers/userController.js";
 
-import authMiddleware from '../middleware/auth';
+import authMiddleware from '../middleware/auth.js';
 
 // Below code is the Instance of a Router
 const router = express.Router();

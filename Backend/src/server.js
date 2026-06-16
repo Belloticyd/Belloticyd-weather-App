@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 dotenv.config()   
 
 // Below code is used to import the app.js files
-import app from "./app";
+import app from "./app.js";
 
 
 // Set the port for the server to listen on, defaulting to 5000 if not specified in environment variables
