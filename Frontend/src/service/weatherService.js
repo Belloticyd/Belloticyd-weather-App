@@ -9,7 +9,7 @@ const API_KEY = import.meta.env.VITE_WEATHER_API_KEY
 
 // Get API URL from environment variables
 // const API_URL = 'http://localhost:8000/api'
-const API_URL = import.meta.env.VITE_API_URL || 'https://belloticyd-weather-app.onrender.com/api'
+const API_URL = 'https://belloticyd-weather-app.onrender.com/api' || import.meta.env.VITE_API_URL
 // const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
 // Below code is the based URL to the weather web site
