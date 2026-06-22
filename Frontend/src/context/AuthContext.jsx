@@ -4,6 +4,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import axios from 'axios'
 import { jwtDecode } from 'jwt-decode'
+import { API_URL } from '../config'
 
 const AuthContext = createContext()
 
@@ -16,7 +17,7 @@ export const useAuth = () => {
 }
 
 // const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
-const API_URL = import.meta.env.VITE_API_URL || 'https://belloticyd-weather-app.onrender.com/api'
+// const API_URL = import.meta.env.VITE_API_URL || 'https://belloticyd-weather-app.onrender.com/api'
 
 // Add request timeout
 axios.defaults.timeout = 10000

@@ -2,10 +2,11 @@
 
 
 import axios from 'axios'
+import { API_URL } from '../config'
 
 // const API_URL = 'http://localhost:8000/api'
 // const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
-const API_URL = 'https://belloticyd-weather-app.onrender.com/api' || import.meta.env.VITE_API_URL
+// const API_URL = 'https://belloticyd-weather-app.onrender.com/api' || import.meta.env.VITE_API_URL
 
 // Get user's favorite cities
 export const getFavorites = async () => {
