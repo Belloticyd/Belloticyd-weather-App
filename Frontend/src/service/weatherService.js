@@ -2,7 +2,7 @@
 
 // Below code is used to import axios
 import axios from "axios"
-import { API_URL } from '../config'
+import { API_URL } from '../config.js'
 
 // Get API key from environment variables (secret!)
 // const API_KEY = import.meta.env.VITE_WEATHER_API_KEY
